@@ -1,5 +1,5 @@
 const Header = (props) => {
-  return <h1>{props.name}</h1>;
+  return <h1>{props.course}</h1>;
 };
 
 const App = () => {
@@ -13,7 +13,7 @@ const App = () => {
 
   return (
     <div>
-      <Header name={course} />
+      <Header course={course} />
       <p>
         {part1} {exercises1}
       </p>
