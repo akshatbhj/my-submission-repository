@@ -49,11 +49,9 @@ function App() {
     <>
       <div>
         <h1>Give Feedback!</h1>
-
         <Button onClick={goodHandler} text="Good" />
         <Button onClick={neutralHandler} text="Neutral" />
         <Button onClick={badHandler} text="Bad" />
-
         <h1>Statistics</h1>
         <Statistics good={good} neutral={neutral} bad={bad} />
       </div>
