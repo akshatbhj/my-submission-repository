@@ -1,6 +1,9 @@
-import { useState } from "react";
-
 const Course = ({ course }) => {
+  const totalExercises = course.parts.reduce(
+    (sum, part) => sum + part.exercises,
+    0
+  );
+
   return (
     <div>
       <h1>{course.name}</h1>
@@ -8,11 +11,12 @@ const Course = ({ course }) => {
         <div key={part.id}>
           <p>
             {part.name}
-            <span>{" "}</span>
+            <span> </span>
             {part.exercises}
           </p>
         </div>
       ))}
+      <h4>Total exercise: {totalExercises}</h4>
     </div>
   );
 };
