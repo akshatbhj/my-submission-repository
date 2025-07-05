@@ -4,9 +4,10 @@ const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
 
 const StatisticsLine = ({ text, value }) => {
   return (
-    <p>
-      {text} : {value}
-    </p>
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
   );
 };
 
@@ -27,7 +28,10 @@ const Statistics = ({ good, neutral, bad }) => {
       <StatisticsLine text="Bad" value={bad} />
       <StatisticsLine text="All" value={totalFeedback} />
       <StatisticsLine text="Average" value={averageFeedback.toFixed(2)} />
-      <StatisticsLine text="Positive Percentage" value={`${positivePercentage.toFixed(2)} %`} />
+      <StatisticsLine
+        text="Positive "
+        value={`${positivePercentage.toFixed(2)} %`}
+      />
     </div>
   );
 };
