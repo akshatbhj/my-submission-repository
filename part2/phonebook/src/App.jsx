@@ -16,6 +16,15 @@ const App = () => {
       name: newName,
     };
 
+    const nameExists = persons.some(
+      (person) => person.name.toLowerCase() === newName.toLowerCase()
+    );
+
+    if (nameExists) {
+      alert(`${newName} already exists in the phonebook`);
+      return;
+    }
+
     setPersons(persons.concat(personObject));
     setNewName("");
   };
