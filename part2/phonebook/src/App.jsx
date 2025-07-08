@@ -61,6 +61,20 @@ const App = () => {
       });
   };
 
+  const deletePerson = (id, name) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      phonebookService
+        .remove(id)
+        .then(() =>
+          setPersons((persons) => persons.filter((person) => person.id !== id))
+        )
+        .catch((error) => {
+          alert(`Failed to delete ${name}. It might already be removed.`);
+          console.log(error);
+        });
+    }
+  };
+
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -78,7 +92,10 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Phonebook filteredPersons={filteredPersons} />
+      <Phonebook
+        filteredPersons={filteredPersons}
+        handleDelete={deletePerson}
+      />
     </div>
   );
 };
