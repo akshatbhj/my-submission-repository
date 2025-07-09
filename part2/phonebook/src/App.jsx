@@ -3,12 +3,15 @@ import phonebookService from "./services/phonebook";
 import SearchFilter from "./components/SearchFilter";
 import PersonForm from "./components/PersonForm";
 import Phonebook from "./components/Phonebook";
+import Notification from "./components/Notification";
+import "./index.css";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     // console.log("effect");
@@ -57,6 +60,8 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
+            setNotification(`${updatedPerson.name} was updated successfully.`);
+            setTimeout(() => setNotification(null), 5000);
           })
           .catch((error) => {
             alert(`Update failed: ${error.response?.data || error.message}`);
@@ -64,17 +69,32 @@ const App = () => {
       }
       return;
     }
+
+    phonebookService.create(personObject).then((newPerson) => {
+      setPersons((prev) => prev.concat(newPerson));
+      setNewName("");
+      setNewNumber("");
+      setNotification(`${newPerson.name} was added successfully.`);
+      setTimeout(() => setNotification(null), 5000);
+    });
   };
 
   const deletePerson = (id, name) => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
       phonebookService
         .remove(id)
-        .then(() =>
-          setPersons((persons) => persons.filter((person) => person.id !== id))
+        .then(
+          () =>
+            setPersons((persons) =>
+              persons.filter((person) => person.id !== id)
+            ),
+          setNotification(`${name} was deleted successfully.`),
+          setTimeout(() => setNotification(null), 5000)
         )
         .catch((error) => {
-          alert(`Failed to delete ${name}. It might already be removed.`);
+          setNotification(
+            `Failed to delete ${name}. It might already be removed.`
+          );
           console.log(error);
         });
     }
@@ -86,6 +106,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={notification} />
       <h1>Phonebook</h1>
       <SearchFilter value={filter} onChange={handleFilterChange} />
       <h2>Add New</h2>
