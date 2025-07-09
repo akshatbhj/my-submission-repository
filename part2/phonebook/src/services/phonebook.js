@@ -18,4 +18,10 @@ const remove = async (id) => {
   return axios.delete(`${baseUrl}/${id}`);
 };
 
-export default { getAll, create, remove };
+const update = async (id, updatedPerson) => {
+  return axios
+    .put(`${baseUrl}/${id}`, updatedPerson)
+    .then((response) => response.data);
+};
+
+export default { getAll, create, remove, update };

@@ -12,7 +12,6 @@ const App = () => {
 
   useEffect(() => {
     // console.log("effect");
-
     phonebookService.getAll().then((response) => {
       console.log("promise fullfilled");
       setPersons(response);
@@ -35,30 +34,36 @@ const App = () => {
   const addNewPerson = (event) => {
     event.preventDefault();
 
+    const existingPerson = persons.find(
+      (p) => p.name.toLowerCase() === newName.toLowerCase()
+    );
+
     const personObject = {
       name: newName,
       number: newNumber,
     };
 
-    const nameExists = persons.some(
-      (person) => person.name.toLowerCase() === newName.toLowerCase()
-    );
-
-    if (nameExists) {
-      alert(`${newName} already exists in the phonebook`);
+    if (existingPerson) {
+      if (
+        window.confirm(
+          `${newName} is already in the phonebook. Replace the number?`
+        )
+      ) {
+        phonebookService
+          .update(existingPerson.id, personObject)
+          .then((updatedPerson) => {
+            setPersons((prev) =>
+              prev.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
+            );
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            alert(`Update failed: ${error.response?.data || error.message}`);
+          });
+      }
       return;
     }
-
-    phonebookService
-      .create(personObject)
-      .then((response) => {
-        setPersons(persons.concat(response));
-        setNewName("");
-        setNewNumber("");
-      })
-      .catch((error) => {
-        alert("Error adding person..", error);
-      });
   };
 
   const deletePerson = (id, name) => {
