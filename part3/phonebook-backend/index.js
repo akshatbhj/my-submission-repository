@@ -2,7 +2,9 @@ const express = require("express");
 
 const app = express();
 
-const personsList = [
+app.use(express.json());
+
+let personsList = [
   {
     id: "1",
     name: "Arto Hellas",
@@ -24,6 +26,12 @@ const personsList = [
     number: "39-23-6423122",
   },
 ];
+
+function generateRandomId(min, max) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+}
 
 const numberOfPersons = personsList.length;
 
@@ -52,6 +60,23 @@ app.get("/api/persons/:id", (request, response) => {
   } else {
     response.status(404).end();
   }
+});
+
+app.delete("/api/persons/:id", (request, response) => {
+  const id = request.params.id;
+  person = personsList.filter((person) => person.id !== id);
+
+  response.status(204).end();
+});
+
+app.post("/api/persons", (request, response) => {
+  const person = request.body;
+  const id = generateRandomId(numberOfPersons + 1, 999);
+
+  person.id = id;
+  personsList = personsList.concat(person);
+
+  response.json(person);
 });
 
 const PORT = 3001;
