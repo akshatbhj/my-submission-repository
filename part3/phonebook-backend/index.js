@@ -25,12 +25,22 @@ const personsList = [
   },
 ];
 
+const numberOfPersons = personsList.length;
+
 app.get("/", (request, response) => {
   response.send("<h1>Hello From Backend</h1>");
 });
 
+app.get("/info", (request, response) => {
+  const timestamp = new Date();
+
+  response.send(
+    `<p>Phonebook has info for ${numberOfPersons} people</p> <p>${timestamp}</p> `
+  );
+});
+
 app.get("/api/persons", (request, response) => {
-//   console.log(response);
+  //   console.log(response);
   response.json(personsList);
 });
 
