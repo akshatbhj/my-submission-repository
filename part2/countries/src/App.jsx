@@ -35,42 +35,50 @@ function App() {
     setSearch(event.target.value);
   };
 
+  const handleShow = (country) => {
+    setFiltered([country]);
+  };
+
   return (
     <div>
-      Find Countries :{" "}
-      <input type="text" onChange={handleSearchChange} value={search} />
-      <div>
-        {filtered.length === 0 && search && <p>No results found.</p>}
+      <label>
+        Find countries:{" "}
+        <input type="text" value={search} onChange={handleSearchChange} />
+      </label>
 
-        {filtered.length > 10 && (
-          <p>Too many matches, please narrow your search.</p>
-        )}
+      {filtered.length > 10 && <p>Too many matches, specify another filter</p>}
 
-        {filtered.length > 1 && filtered.length <= 10 && (
+      {filtered.length > 1 && filtered.length <= 10 && (
+        <ul>
+          {filtered.map((country) => (
+            <li key={country.cca3}>
+              {country.name.common}{" "}
+              <button onClick={() => handleShow(country)}>Show</button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {filtered.length === 1 && (
+        <div>
+          <h1>{filtered[0].name.common}</h1>
+          <h3>Official Name: {filtered[0].name.official}</h3>
+          <p>Capital: {filtered[0].capital?.[0]}</p>
+          <p>Area: {filtered[0].area}{" "}km²</p>
+          <p>Population: {filtered[0].population}</p>
+          <h2>Languages</h2>
           <ul>
-            {filtered.map((country) => (
-              <li key={country.cca3}>{country.name.common}</li>
+            {Object.values(filtered[0].languages).map((lang) => (
+              <li key={lang}>{lang}</li>
             ))}
           </ul>
-        )}
-
-        {filtered.length === 1 && (
-          <div>
-            <h1>{filtered[0].name.common}</h1>
-            <h3>Official Name : {filtered[0].name.official}</h3>
-            <p>Capital: {filtered[0].capital?.[0]}</p>
-            <p>Area: {filtered[0].area}</p>
-            <p>Population: {filtered[0].population}</p>
-            <h2>Languages</h2>
-            {Object.values(filtered[0].languages).map((language) => {
-              return <li>{language}</li>;
-            })}
-            <div>
-              <img src={filtered[0].flags.png} alt={filtered[0].flags.alt} />
-            </div>
-          </div>
-        )}
-      </div>
+          <img
+            src={filtered[0].flags.png}
+            alt={`Flag of ${filtered[0].flags.alt}`}
+            width="250"
+          />
+        </div>
+      )}
     </div>
   );
 }
