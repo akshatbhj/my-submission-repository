@@ -1,11 +1,11 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
-const Entry = require("./models/entry")
+const Entry = require("./models/entry");
 
 const app = express();
 
-app.use(express.static('dist'))
+app.use(express.static("dist"));
 
 // Middlewares
 app.use(express.json());
@@ -42,10 +42,14 @@ app.get("/info", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  //   console.log(response);
-  Entry.find({}).then(entry => {
-    response.json(entry)
-  })
+  Entry.find({}).then((entries) => {
+    const normalized = entries.map((entry) => ({
+      id: entry.id,
+      name: entry.Name, // Capital → lowercase
+      number: entry.Number, // Capital → lowercase
+    }));
+    response.json(normalized);
+  });
 });
 
 // app.get("/api/persons/:id", (request, response) => {

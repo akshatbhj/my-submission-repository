@@ -4,7 +4,8 @@ mongoose.set("strictQuery", false);
 
 const url = process.env.MONGODB_URI;
 
-console.log("connecting...");
+console.log("connecting to database...");
+
 mongoose
   .connect(url)
   .then((result) => {
@@ -15,8 +16,8 @@ mongoose
   });
 
 const phonebookSchema = new mongoose.Schema({
-  name: String,
-  number: Number,
+  Name: String,
+  Number: Number,
 });
 
 phonebookSchema.set('toJSON', {
