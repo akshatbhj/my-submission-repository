@@ -25,8 +25,8 @@ app.get("/api/persons", (request, response) => {
   Entry.find({}).then((entries) => {
     const normalized = entries.map((entry) => ({
       id: entry.id,
-      name: entry.Name, // Capital → lowercase
-      number: entry.Number, // Capital → lowercase
+      name: entry.name, // Capital → lowercase
+      number: entry.number, // Capital → lowercase
     }));
     response.json(normalized);
   });
