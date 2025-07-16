@@ -21,26 +21,6 @@ app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
 
-// function generateRandomId(min, max) {
-//   const minCeiled = Math.ceil(min);
-//   const maxFloored = Math.floor(max);
-//   return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
-// }
-
-// const numberOfPersons = personsList.length;
-
-// app.get("/", (request, response) => {
-//   response.send("<h1>Hello From Backend</h1>");
-// });
-
-app.get("/info", (request, response) => {
-  const timestamp = new Date();
-
-  response.send(
-    `<p>Phonebook has info for ${numberOfPersons} people</p> <p>${timestamp}</p> `
-  );
-});
-
 app.get("/api/persons", (request, response) => {
   Entry.find({}).then((entries) => {
     const normalized = entries.map((entry) => ({
@@ -52,32 +32,28 @@ app.get("/api/persons", (request, response) => {
   });
 });
 
-// app.get("/api/persons/:id", (request, response) => {
-//   const id = request.params.id;
-//   const person = personsList.find((person) => person.id === id);
-//   if (person) {
-//     response.json(person);
-//   } else {
-//     response.status(404).end();
-//   }
-// });
+app.post("/api/persons", (request, response) => {
+  const { name, number } = request.body;
 
-// app.delete("/api/persons/:id", (request, response) => {
-//   const id = request.params.id;
-//   person = personsList.filter((person) => person.id !== id);
+  if (!name || !number) {
+    return response.status(404).json({ error: "Name and number are required" });
+  }
 
-//   response.status(204).end();
-// });
+  const newEntry = new Entry({
+    name: name,
+    number: number,
+  });
 
-// app.post("/api/persons", (request, response) => {
-//   const person = request.body;
-//   const id = generateRandomId(numberOfPersons + 1, 999);
-
-//   person.id = id;
-//   personsList = personsList.concat(person);
-
-//   response.json(person);
-// });
+  newEntry
+    .save()
+    .then((savedEntry) => {
+      response.json(savedEntry);
+    })
+    .catch((err) => {
+      console.error("Error saving entry:", err.message);
+      res.status(500).json({ error: "Failed to save entry" });
+    });
+});
 
 const PORT = process.env.PORT;
 
