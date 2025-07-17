@@ -79,6 +79,25 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
+// Update an entry in database
+app.put("/api/persons/:id", (request, response, next) => {
+  const { name, number } = request.body;
+  Entry.findById(request.params.id)
+    .then((entry) => {
+      if (!entry) {
+        return response.status(404).end();
+      }
+
+      entry.name = name;
+      entry.number = number;
+
+      return entry.save().then((updatedEntry) => {
+        response.json(updatedEntry);
+      });
+    })
+    .catch((error) => next(error));
+});
+
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
