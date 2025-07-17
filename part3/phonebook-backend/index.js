@@ -6,11 +6,10 @@ const Entry = require("./models/entry");
 const app = express();
 
 app.use(express.static("dist"));
-
-// Middlewares
 app.use(express.json());
 // app.use(morgan("tiny"));
 
+// Middlewares
 morgan.token("body", (req) => {
   return req.method === "POST" || req.method === "PUT"
     ? JSON.stringify(req.body)
@@ -30,6 +29,19 @@ app.get("/api/persons", (request, response) => {
     }));
     response.json(normalized);
   });
+});
+
+app.get("/api/persons/:id", (request, response, next) => {
+  Entry.findById(request.params.id)
+    .then((entry) => {
+      if (entry) {
+        response.json(entry);
+      } else {
+        response.status(404).end();
+      }
+    })
+
+    .catch((error) => next(error));
 });
 
 app.post("/api/persons", (request, response) => {
@@ -54,6 +66,19 @@ app.post("/api/persons", (request, response) => {
       res.status(500).json({ error: "Failed to save entry" });
     });
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 
