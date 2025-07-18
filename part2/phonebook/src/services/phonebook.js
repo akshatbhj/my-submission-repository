@@ -9,9 +9,14 @@ const getAll = async () => {
 };
 
 const create = async (newObject) => {
-  const request = axios.post(baseUrl, newObject);
-  const response = await request;
-  return response.data;
+  try {
+    const request = axios.post(baseUrl, newObject);
+    const response = await request;
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error); // re-throw so the caller can handle it
+  }
 };
 
 const remove = async (id) => {

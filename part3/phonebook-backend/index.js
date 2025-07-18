@@ -42,7 +42,6 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-
     .catch((error) => next(error));
 });
 
@@ -64,9 +63,9 @@ app.post("/api/persons", (request, response) => {
     .then((savedEntry) => {
       response.json(savedEntry);
     })
-    .catch((err) => {
-      console.error("Error saving entry:", err.message);
-      res.status(500).json({ error: "Failed to save entry" });
+    .catch((error) => {
+      console.error("Error saving entry:", error.message);
+      response.status(500).json({ error: "Failed to save entry" });
     });
 });
 
@@ -103,6 +102,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);

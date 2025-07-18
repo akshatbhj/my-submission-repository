@@ -70,13 +70,19 @@ const App = () => {
       return;
     }
 
-    phonebookService.create(personObject).then((newPerson) => {
-      setPersons((prev) => prev.concat(newPerson));
-      setNewName("");
-      setNewNumber("");
-      setNotification(`${newPerson.name} was added successfully.`);
-      setTimeout(() => setNotification(null), 5000);
-    });
+    phonebookService
+      .create(personObject)
+      .then((newPerson) => {
+        setPersons((prev) => prev.concat(newPerson));
+        setNewName("");
+        setNewNumber("");
+        setNotification(`${newPerson.name} was added successfully.`);
+        setTimeout(() => setNotification(null), 5000);
+      })
+      .catch((error) => {
+        setNotification(`${error}`);
+        setTimeout(() => setNotification(null), 5000);
+      });
   };
 
   const deletePerson = (id, name) => {
@@ -95,6 +101,7 @@ const App = () => {
           setNotification(
             `Failed to delete ${name}. It might already be removed.`
           );
+          setTimeout(() => setNotification(null), 5000);
           console.log(error);
         });
     }
