@@ -1,8 +1,10 @@
 const bloglistRouter = require("express").Router();
 const Blog = require("../models/blog");
 
-bloglistRouter.get("/", (req, res) => {
-  res.json("Hello MF");
+bloglistRouter.get("/blogs", (req, res) => {
+  Blog.find({}).then((blogs) => {
+    res.json(blogs);
+  });
 });
 
 bloglistRouter.post("/api/blogs", (req, res) => {
@@ -17,8 +19,8 @@ bloglistRouter.post("/api/blogs", (req, res) => {
 
   newBlog
     .save()
-    .then((savedBlog) => {
-      res.json(savedBlog);
+    .then((result) => {
+      res.status(201).json(result);
     })
     .catch((error) => console.log(error.message));
 });
