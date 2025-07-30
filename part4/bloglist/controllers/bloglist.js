@@ -2,42 +2,49 @@ const bloglistRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const { Error } = require("../utils/logger");
+const jwt = require("jsonwebtoken");
+const userExtractor = require("../middlewares/userExtractor");
 
 bloglistRouter.get("/blogs", async (req, res) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   res.json(blogs);
 });
 
-bloglistRouter.delete("/blogs/:id", async (req, res) => {
-  const id = req.params.id;
-  const blog = await Blog.findById(id);
+bloglistRouter.delete("/blogs/:id", userExtractor, async (request, response) => {
+  const user = request.user;
+  const blog = await Blog.findById(request.params.id);
 
-  if (!blog) return response.status(404).json({ error: "Blog not found" });
+  if (!blog) {
+    return response.status(404).json({ error: "blog not found" });
+  }
 
-  await Blog.findByIdAndDelete(id);
-  res.status(204).end();
+  if (blog.user.toString() !== user._id.toString()) {
+    return response
+      .status(403)
+      .json({ error: "only the creator can delete the blog" });
+  }
+
+  await Blog.findByIdAndDelete(request.params.id);
+  response.status(204).end();
 });
 
-bloglistRouter.post("/api/blogs", async (req, res) => {
-  try {
-    const { title, author, url, likes } = req.body;
-    const user = await User.findOne();
+bloglistRouter.post("/api/blogs", userExtractor, async (request, response) => {
+  const user = request.user;
+  const body = request.body;
 
-    const newBlog = new Blog({
-      title: title,
-      author: author,
-      url: url,
-      likes: likes || 0,
-      user: user,
-    });
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes || 0,
+    user: user._id,
+  });
 
-    const result = await newBlog.save();
-    user.blogs = user.blogs.concat(result);
-    await user.save();
-    res.status(201).json(result);
-  } catch (error) {
-    res.sendStatus(400).json({ error: error.message });
-  }
+  const savedBlog = await blog.save();
+  user.blogs = user.blogs.concat(savedBlog);
+  await user.save();
+
+  response.status(201).json(savedBlog);
 });
 
 bloglistRouter.put("/api/blogs/:id", async (req, res) => {
@@ -55,7 +62,5 @@ bloglistRouter.put("/api/blogs/:id", async (req, res) => {
     res.sendStatus(400).json({ error: error.message });
   }
 });
-
-bloglistRouter.delete("/api/blogs:id", async (req, res) => {});
 
 module.exports = bloglistRouter;
