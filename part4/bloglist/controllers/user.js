@@ -1,8 +1,9 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const validateUser = require("../middlewares/validateUser");
 const usersRouter = require("express").Router();
 
-usersRouter.post("/api/users", async (req, res) => {
+usersRouter.post("/api/users", validateUser, async (req, res) => {
   const { username, name, password } = req.body;
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -18,9 +19,9 @@ usersRouter.post("/api/users", async (req, res) => {
   res.status(201).json(savedUser);
 });
 
-usersRouter.get('/users', async (req, res) => {
-  const users = await User.find({})
-  res.json(users)
-})
+usersRouter.get("/users", async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
 
 module.exports = usersRouter;
