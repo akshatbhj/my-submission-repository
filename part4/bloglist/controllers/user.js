@@ -20,7 +20,7 @@ usersRouter.post("/api/users", validateUser, async (req, res) => {
 });
 
 usersRouter.get("/users", async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({}).populate('blogs');
   res.json(users);
 });
 

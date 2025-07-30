@@ -1,9 +1,10 @@
 const bloglistRouter = require("express").Router();
 const Blog = require("../models/blog");
+const User = require("../models/user");
 const { Error } = require("../utils/logger");
 
 bloglistRouter.get("/blogs", async (req, res) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   res.json(blogs);
 });
 
@@ -20,15 +21,19 @@ bloglistRouter.delete("/blogs/:id", async (req, res) => {
 bloglistRouter.post("/api/blogs", async (req, res) => {
   try {
     const { title, author, url, likes } = req.body;
+    const user = await User.findOne();
 
     const newBlog = new Blog({
       title: title,
       author: author,
       url: url,
-      likes: likes,
+      likes: likes || 0,
+      user: user,
     });
 
     const result = await newBlog.save();
+    user.blogs = user.blogs.concat(result);
+    await user.save();
     res.status(201).json(result);
   } catch (error) {
     res.sendStatus(400).json({ error: error.message });
