@@ -10,25 +10,29 @@ bloglistRouter.get("/blogs", async (req, res) => {
   res.json(blogs);
 });
 
-bloglistRouter.delete("/blogs/:id", userExtractor, async (request, response) => {
-  const user = request.user;
-  const blog = await Blog.findById(request.params.id);
+bloglistRouter.delete(
+  "/blogs/:id",
+  userExtractor,
+  async (request, response) => {
+    const user = request.user;
+    const blog = await Blog.findById(request.params.id);
 
-  if (!blog) {
-    return response.status(404).json({ error: "blog not found" });
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    if (blog.user.toString() !== user._id.toString()) {
+      return response
+        .status(403)
+        .json({ error: "only the creator can delete the blog" });
+    }
+
+    await Blog.findByIdAndDelete(request.params.id);
+    response.status(204).end();
   }
+);
 
-  if (blog.user.toString() !== user._id.toString()) {
-    return response
-      .status(403)
-      .json({ error: "only the creator can delete the blog" });
-  }
-
-  await Blog.findByIdAndDelete(request.params.id);
-  response.status(204).end();
-});
-
-bloglistRouter.post("/api/blogs", userExtractor, async (request, response) => {
+bloglistRouter.post("/blogs", userExtractor, async (request, response) => {
   const user = request.user;
   const body = request.body;
 
@@ -41,13 +45,13 @@ bloglistRouter.post("/api/blogs", userExtractor, async (request, response) => {
   });
 
   const savedBlog = await blog.save();
-  user.blogs = user.blogs.concat(savedBlog);
+  user.blogs = user.blogs.concat(savedBlog._id);
   await user.save();
 
   response.status(201).json(savedBlog);
 });
 
-bloglistRouter.put("/api/blogs/:id", async (req, res) => {
+bloglistRouter.put("/blogs/:id", async (req, res) => {
   try {
     const { likes } = req.body;
     const blog = await Blog.findById(req.params.id);

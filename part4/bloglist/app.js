@@ -24,8 +24,8 @@ mongoose
 app.use(express.json());
 app.use(middleware.tokenExtractor)
 
-app.use("/", bloglistRouter);
+app.use("/api", bloglistRouter);
 app.use("/", usersRouter);
-app.use("/login", loginRouter)
+app.use("/api", loginRouter)
 
 module.exports = app;
