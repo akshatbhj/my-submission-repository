@@ -54,16 +54,20 @@ bloglistRouter.post("/blogs", userExtractor, async (request, response) => {
 bloglistRouter.put("/blogs/:id", async (req, res) => {
   try {
     const { likes } = req.body;
-    const blog = await Blog.findById(req.params.id);
 
-    if (!blog) return response.status(404).json({ error: "Blog not found" });
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      { likes },
+      { new: true, runValidators: true }
+    );
 
-    blog.likes = likes;
-    const updatedBlog = await blog.save();
+    if (!updatedBlog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
 
     res.json(updatedBlog);
   } catch (error) {
-    res.sendStatus(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
