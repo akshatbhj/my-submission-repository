@@ -1,3 +1,5 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const anecdotesAtStart = [
   "If it hurts, do it more often",
   "Adding manpower to a late software project makes it later!",
@@ -19,33 +21,23 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject);
 
-const anecdoteReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case "VOTE":
-      return state.map((anecdote) =>
-        anecdote.id === action.payload.id
-          ? { ...anecdote, votes: anecdote.votes + 1 }
-          : anecdote
-      );
-    case "NEW_ANECDOTE":
-      return state.concat(action.payload);
-    default:
-      return state;
-  }
-};
+const anecdoteSlice = createSlice({
+  name: "anecdotes",
+  initialState,
+  reducers: {
+    newAnecdote(state, action) {
+      const content = action.payload;
+      state.push(asObject(content));
+    },
+    setVote(state, action) {
+      const id = action.payload;
+      const anecdote = state.find((a) => a.id === id);
+      if (anecdote) {
+        anecdote.votes += 1; // Immer allows us to "mutate" state
+      }
+    },
+  },
+});
 
-export const vote = (id) => {
-  return {
-    type: "VOTE",
-    payload: { id },
-  };
-};
-
-export const newAnecdote = (content) => {
-  return {
-    type: "NEW_ANECDOTE",
-    payload: { content, id: getId(), votes: 0 },
-  };
-};
-
-export default anecdoteReducer;
+export const { setVote, newAnecdote } = anecdoteSlice.actions;
+export default anecdoteSlice.reducer;
