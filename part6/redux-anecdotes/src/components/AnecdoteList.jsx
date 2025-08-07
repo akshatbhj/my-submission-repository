@@ -1,5 +1,6 @@
 import { setVote } from "../reducers/anecdoteReducer";
 import { useDispatch, useSelector } from "react-redux";
+import anecdotesService from "../services/anecdotes";
 
 const AnecdoteList = () => {
   const anecdotes = useSelector((state) => {
@@ -10,8 +11,17 @@ const AnecdoteList = () => {
   });
 
   const dispatch = useDispatch();
-  const vote = (id) => {
-    dispatch(setVote(id));
+
+  const addVote = async (anecdote) => {
+    const updatedAnecdote = {
+      ...anecdote,
+      votes: anecdote.votes + 1,
+    };
+    const response = await anecdotesService.updateVote(
+      anecdote.id,
+      updatedAnecdote
+    );
+    dispatch(setVote(response)); // you could also dispatch the full object if reducer expects it
   };
 
   return (
@@ -21,7 +31,7 @@ const AnecdoteList = () => {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>vote</button>
+            <button onClick={() => addVote(anecdote)}>vote</button>
           </div>
         </div>
       ))}

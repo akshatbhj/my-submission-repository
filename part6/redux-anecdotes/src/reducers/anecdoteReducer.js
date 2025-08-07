@@ -1,13 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
+import anecdotesService from "../services/anecdotes";
 
-const anecdotesAtStart = [
-  "If it hurts, do it more often",
-  "Adding manpower to a late software project makes it later!",
-  "The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
-  "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
-  "Premature optimization is the root of all evil.",
-  "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
-];
+const anecdotesAtStart = [];
 
 const getId = () => (100000 * Math.random()).toFixed(0);
 
@@ -25,19 +19,39 @@ const anecdoteSlice = createSlice({
   name: "anecdotes",
   initialState,
   reducers: {
-    newAnecdote(state, action) {
-      const content = action.payload;
-      state.push(asObject(content));
-    },
+    // newAnecdote(state, action) {
+    //   const content = action.payload;
+    //   state.push(content);
+    // },
     setVote(state, action) {
-      const id = action.payload;
-      const anecdote = state.find((a) => a.id === id);
-      if (anecdote) {
-        anecdote.votes += 1; // Immer allows us to "mutate" state
-      }
+      const updatedAnecdote = action.payload;
+      return state.map((a) =>
+        a.id === updatedAnecdote.id ? updatedAnecdote : a
+      );
+    },
+    setAnecdotes(state, action) {
+      return action.payload;
+    },
+    appendAnecdote(state, action) {
+      state.push(action.payload);
     },
   },
 });
 
-export const { setVote, newAnecdote } = anecdoteSlice.actions;
+export const { setVote, setAnecdotes, appendAnecdote } = anecdoteSlice.actions;
+
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdote = await anecdotesService.getAll();
+    dispatch(setAnecdotes(anecdote));
+  };
+};
+
+export const newAnecdote = (content) => {
+  return async (dispatch) => {
+    const newEntry = await anecdotesService.createAnecdote(content);
+    dispatch(appendAnecdote(newEntry));
+  };
+};
+
 export default anecdoteSlice.reducer;
